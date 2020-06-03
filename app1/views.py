@@ -5,7 +5,7 @@ from django.shortcuts import render, redirect
 # Create your views here.
 from django.urls import reverse
 
-from app1.forms import ExtendedUserCreationForm
+from app1.forms import ExtendedUserCreationForm, UserProfileForm
 from app1.models import UserProfile
 
 
@@ -20,12 +20,19 @@ def index(request):
 
 
 def register(request):
+    form: ExtendedUserCreationForm
+    user: User
+    profile_form :UserProfileForm
     if request.method == 'POST':
-        form : ExtendedUserCreationForm
-        user : User
+
         form = ExtendedUserCreationForm(request.POST)
-        if form.is_valid() :
+        profile_form = UserProfileForm(request.POST)
+
+        if form.is_valid() and profile_form.is_valid():
             user = form.save()
+            user_profile = profile_form.save(commit=False)
+            user_profile.user = user
+            user_profile.save()
             username = form.cleaned_data.get('username')
             password = form.cleaned_data.get('password1')
             auth = authenticate(username=username, password=password)
@@ -33,7 +40,8 @@ def register(request):
             return redirect(reverse('app1:index'))
     else:
         form = ExtendedUserCreationForm()
-    context = {'form': form}
+        profile_form = UserProfileForm()
+    context = {'form': form,'profile_form':profile_form}
     return render(request, 'html/register.html', context)
 
 

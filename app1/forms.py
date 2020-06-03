@@ -1,5 +1,8 @@
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
+from django.forms import ModelForm
+from .models import UserProfile
+from django import forms
 
 
 class ExtendedUserCreationForm(UserCreationForm):
@@ -14,3 +17,13 @@ class ExtendedUserCreationForm(UserCreationForm):
         if commit:
             self.user.save()
         return self.user
+
+
+class UserProfileForm(ModelForm):
+    card_id = forms.CharField(required=True)
+    authority = forms.CharField(required=True)
+    position = forms.CharField(required=True)
+
+    class Meta:
+        model = UserProfile
+        fields = ['card_id','authority','position']
